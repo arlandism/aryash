@@ -8,14 +8,15 @@ import (
 )
 
 var exitPrompt = "Valar Dohaeris"
-var prompt = string([]byte{0xF0, 0x9F, 0x92, 0x80})
+var entryPrompt = "Valar Morghulis"
+var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Valar Morghulis")
+	fmt.Println(entryPrompt)
 
 	for {
-		fmt.Printf("%s ", prompt)
+		fmt.Printf("%s ", icon)
 		text, err := reader.ReadString('\n')
 		if text == "exit\n" {
 			os.Exit(0)
