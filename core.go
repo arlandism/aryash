@@ -16,6 +16,9 @@ var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
 var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and then exit")
 
 func handleCommand(s string) error {
+	if s == "" {
+		return nil
+	}
 	parts := strings.Split(s, " ")
 	out, err := exec.Command(parts[0], parts[1:]...).Output()
 	if err != nil {
@@ -39,9 +42,6 @@ func main() {
 			if err == io.EOF || text == "exit" {
 				fmt.Println(exitPrompt)
 				os.Exit(0)
-			}
-			if text == "" {
-				continue
 			}
 			err = handleCommand(text)
 			if err != nil {
