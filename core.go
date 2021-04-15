@@ -11,7 +11,7 @@ import (
 )
 
 var exitPrompt = "Valar Dohaeris"
-var entryPrompt = "Valar Morghulis"
+var entryPrompt = "Valar Morghulis\nType 'exit' at any time to quit the shell."
 var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
 var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and then exit")
 
@@ -36,12 +36,12 @@ func main() {
 			fmt.Printf("%s ", icon)
 			raw, err := reader.ReadString('\n')
 			text := strings.TrimRight(raw, "\n")
-			if text == "exit" {
-				os.Exit(0)
-			}
-			if err == io.EOF {
+			if err == io.EOF || text == "exit" {
 				fmt.Println(exitPrompt)
 				os.Exit(0)
+			}
+			if text == "" {
+				continue
 			}
 			err = handleCommand(text)
 			if err != nil {
