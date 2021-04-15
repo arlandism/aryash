@@ -36,6 +36,11 @@ func handleCommand(s string) error {
 		// -1 means either the user sent an interrupt signal or the child process isn't done yet
 		// In our case it *must* be the former since using 'Output' waits. So if we reach
 		// this line then execution has stopped.
+		// There's a defensive cond check just in case there's something I'm missing.
+		if cmd.ProcessState == nil {
+			fmt.Println("Something went wrong. This shouldn't happen.")
+			return nil
+		}
 		if cmd.ProcessState.ExitCode() == -1 {
 			return nil
 		}
