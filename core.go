@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 )
 
@@ -24,11 +26,18 @@ func handleCommand(s string) error {
 		err := os.Chdir(parts[1])
 		return err
 	default:
-		out, err := exec.Command(parts[0], parts[1:]...).Output()
+		var stdout bytes.Buffer
+		cmd := exec.Command(parts[0], parts[1:]...)
+		cmd.Stdout = &stdout
+		err := cmd.Start()
 		if err != nil {
 			return err
 		}
-		fmt.Printf(string(out))
+		err = cmd.Wait()
+		if err != nil {
+			return err
+		}
+		fmt.Printf(string(stdout.Bytes()))
 		return nil
 	}
 }
@@ -38,6 +47,8 @@ var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and 
 
 func main() {
 	flag.Parse()
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt)
 	if *commandFlag != "" {
 		handleCommand(*commandFlag)
 	} else {
