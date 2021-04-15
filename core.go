@@ -10,10 +10,10 @@ import (
 	"strings"
 )
 
-var exitPrompt = "Valar Dohaeris"
-var entryPrompt = "Valar Morghulis\nType 'exit' at any time to quit the shell."
-var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
-var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and then exit")
+const exitPrompt = "Valar Dohaeris"
+const entryPrompt = "Valar Morghulis\nType 'exit' at any time to quit the shell."
+const CHANGE_DIR = "cd"
+const EXIT = "exit"
 
 func handleCommand(s string) error {
 	if s == "" {
@@ -28,6 +28,9 @@ func handleCommand(s string) error {
 	return nil
 }
 
+var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
+var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and then exit")
+
 func main() {
 	flag.Parse()
 	if *commandFlag != "" {
@@ -39,7 +42,7 @@ func main() {
 			fmt.Printf("%s ", icon)
 			raw, err := reader.ReadString('\n')
 			text := strings.TrimRight(raw, "\n")
-			if err == io.EOF || text == "exit" {
+			if err == io.EOF || text == EXIT {
 				fmt.Println(exitPrompt)
 				os.Exit(0)
 			}
