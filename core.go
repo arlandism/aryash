@@ -18,10 +18,10 @@ var commandFlag = flag.String("c", "", "Run a command in a shell subprocess and 
 func handleCommand(s string) error {
 	parts := strings.Split(s, " ")
 	out, err := exec.Command(parts[0], parts[1:]...).Output()
-	fmt.Println(string(out))
 	if err != nil {
 		return err
 	}
+	fmt.Println(string(out))
 	return nil
 }
 
@@ -45,7 +45,7 @@ func main() {
 			}
 			err = handleCommand(text)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("can't process command: %s\n", text)
 			}
 		}
 	}
