@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 )
 
@@ -24,7 +25,20 @@ func handleCommand(s string) error {
 		err := os.Chdir(parts[1])
 		return err
 	default:
-		out, err := exec.Command(parts[0], parts[1:]...).Output()
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt)
+		cmd := exec.Command(parts[0], parts[1:]...)
+		go func() {
+			sig := <-sigChan
+			cmd.Process.Signal(sig)
+		}()
+		out, err := cmd.Output()
+		// -1 means either the user sent an interrupt signal or the child process isn't done yet
+		// In our case it *must* be the former since using 'Output' waits. So if we reach
+		// this line then execution has stopped.
+		if cmd.ProcessState.ExitCode() == -1 {
+			return nil
+		}
 		if err != nil {
 			return err
 		}
@@ -53,6 +67,7 @@ func main() {
 			}
 			err = handleCommand(text)
 			if err != nil {
+				fmt.Println(err)
 				fmt.Printf("can't process command: %s\n", text)
 			}
 		}
