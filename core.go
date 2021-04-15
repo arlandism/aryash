@@ -16,16 +16,21 @@ const CHANGE_DIR = "cd"
 const EXIT = "exit"
 
 func handleCommand(s string) error {
-	if s == "" {
+	parts := strings.Split(s, " ")
+	switch parts[0] {
+	case "":
+		return nil
+	case CHANGE_DIR:
+		err := os.Chdir(parts[1])
+		return err
+	default:
+		out, err := exec.Command(parts[0], parts[1:]...).Output()
+		if err != nil {
+			return err
+		}
+		fmt.Printf(string(out))
 		return nil
 	}
-	parts := strings.Split(s, " ")
-	out, err := exec.Command(parts[0], parts[1:]...).Output()
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(out))
-	return nil
 }
 
 var icon = string([]byte{0xF0, 0x9F, 0x92, 0x80})
