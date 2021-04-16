@@ -11,10 +11,17 @@ import (
 	"strings"
 )
 
-const exitPrompt = "Valar Dohaeris"
-const entryPrompt = "Valar Morghulis\nType 'exit' at any time to quit the shell."
-const CHANGE_DIR = "cd"
-const EXIT = "exit"
+// prompts
+const (
+	PromptEntry = "Valar Morghulis\nType 'exit' at any time to quit the shell."
+	PromptExit  = "Valar Dohaeris"
+)
+
+// built-ins
+const (
+	CommandExit      = "exit"
+	CommandChangeDir = "cd"
+)
 
 // currentCmd is set by 'handleCommand' and is leveraged by the signal handler
 // to determine whether the signal should be propagated to a subprocess or
@@ -38,7 +45,7 @@ func handleCommand(s string) error {
 	switch parts[0] {
 	case "":
 		return nil
-	case CHANGE_DIR:
+	case CommandChangeDir:
 		err := os.Chdir(parts[1])
 		return err
 	default:
@@ -76,13 +83,13 @@ func main() {
 		handleCommand(*commandFlag)
 	} else {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Println(entryPrompt)
+		fmt.Println(PromptEntry)
 		for {
 			fmt.Printf("%s ", icon)
 			raw, err := reader.ReadString('\n')
 			text := strings.TrimRight(raw, "\n")
-			if err == io.EOF || text == EXIT {
-				fmt.Println(exitPrompt)
+			if err == io.EOF || text == CommandExit {
+				fmt.Println(PromptExit)
 				os.Exit(0)
 			}
 			err = handleCommand(text)
